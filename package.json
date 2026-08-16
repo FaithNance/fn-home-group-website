@@ -1,0 +1,19 @@
+{
+  "name": "fn-home-group-website",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static website for Faith Nance, REALTOR (R), founder of FN Home Group, brokered by Epique Realty. Plain HTML/CSS/vanilla JS, generated from templates in /build via a Python script, deployed as-is to Netlify.",
+  "scripts": {
+    "build": "python3 build/scripts/generate.py",
+    "start": "python3 -m http.server 8080",
+    "serve": "python3 -m http.server 8080"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "author": "FN Home Group",
+  "license": "UNLICENSED"
+}

@@ -1,0 +1,63 @@
+{
+  "_comment": "CENTRAL EDITABLE BUSINESS INFORMATION. This file is the single source of truth for Faith's core business details. It is referenced by the README and by future update requests. NOTE: because this is a static HTML site, changing a value here does not automatically update the live pages -- use it as a checklist, then update the matching text in the HTML files listed under '_appears_in' for each field (primarily build/templates/nav.html, build/templates/footer.html, and build/pages/contact.html, home.html, meetfaith.html, epiquerealty.html). A future enhancement could wire this JSON directly into the generator so every page pulls from it automatically.",
+
+  "agent": {
+    "name": "Faith Nance",
+    "title": "REALTOR®",
+    "company": "FN Home Group",
+    "tagline": "Local Expertise. Elevated Experience.",
+    "email": "faithnance@epique.me",
+    "cell_phone": "931-332-6089",
+    "headshot": "/assets/headshots/faithnanceheadshot.jpg"
+  },
+
+  "brokerage": {
+    "name": "Epique Realty",
+    "office_address": "40 Burton Hills Blvd. #200, Nashville, TN 37215",
+    "office_phone": "888-893-3537",
+    "logo_black": "/assets/logos/epiquerealtylogoblack.png",
+    "logo_color": "/assets/logos/epiquerealtylogocolor.png",
+    "license_number": "Tennessee License #372654"
+  },
+
+  "brand_logo": "/assets/logos/fnhomegrouplogo.png",
+
+  "brand_colors": {
+    "dusty_blue": "#7C93A8",
+    "dusty_blue_dark": "#5C7791",
+    "rose_gold": "#C9A79C",
+    "champagne": "#E9DFCF",
+    "warm_white": "#FBF8F4",
+    "cream": "#F5EFE5",
+    "greige": "#EAE3D8",
+    "taupe": "#D9CFC0",
+    "charcoal_text": "#2B2A28"
+  },
+
+  "service_area": {
+    "counties": ["Bedford", "Cheatham", "Davidson", "Giles", "Hickman", "Lawrence", "Lewis", "Lincoln", "Marshall", "Maury", "Perry", "Rutherford", "Wayne", "Williamson"],
+    "communities": ["Spring Hill", "Columbia", "Thompson's Station", "Franklin", "Nashville", "Lewisburg", "Pulaski", "Hohenwald", "Lawrenceburg", "Murfreesboro", "Goodlettsville", "Hendersonville", "Ashland City", "White Bluff", "Waverly", "Linden"]
+  },
+
+  "social_links": {
+    "facebook": "https://www.facebook.com/christiana.hatley",
+    "instagram": "https://www.instagram.com/fnhomegroup/",
+    "linkedin": "https://www.linkedin.com/in/christiana-nance-980169174/",
+    "tiktok": "https://www.tiktok.com/@faithnancemiddletn — provided by Faith; used in the Resource Library PDF guides, but NOT yet added to the live site footer/header (out of scope for that request; ask Faith if she wants it added site-wide)",
+    "youtube": "PLACEHOLDER — add if/when Faith provides a YouTube channel URL"
+  },
+
+  "forms_notes": "All forms use Netlify Forms (data-netlify=\"true\") and submit to /success.html. Submissions appear in the Netlify dashboard under Site > Forms once deployed. See README for details.",
+
+  "testimonials": "No client testimonials have been provided yet. Placeholder cards are used on /testimonials.html. Replace with real, permissioned client testimonials only -- do not publish invented quotes, names, or star ratings.",
+
+  "vendors": "No approved preferred vendors have been provided yet. Category placeholders are used on /vendors.html. Add real vendor names/contact info only once Faith has approved them.",
+
+  "mls_search": "PLACEHOLDER — connect a licensed IDX/MLS home search provider (e.g., a broker-approved IDX widget) to power live listing search on the Buy page and homepage CTAs. Not included in this build because it requires an active MLS/IDX data feed agreement.",
+
+  "epique_edge": "/epique-edge.html was rebuilt into a full consumer-facing Epique Edge page (hero, self-assessment checklist, program overview, possible uses, 6-step process, financial details, Faith's role, lead form). NOTE: no 'Edge by Epique Training' PDF file was actually received in this build -- the requesting message described the PDF's contents inline (program terms, dollar amounts, rates, FICO minimum, fee, etc.), and THAT text was used as the factual source, quoted/paraphrased into consumer-appropriate language. If the real training PDF is provided later, re-verify every figure below against it before publishing further changes: unsecured line of credit up to $50,000, no mortgage/lien, soft credit inquiry at initial eligibility, interest on used funds only, one-time fee up to $499, APR ~8.99-16.99%, minimum FICO ~680, repayment at closing/sale or ~12 months per agreement. Deliberately EXCLUDED as confidential/internal/unsupported/non-consumer-appropriate: any internal training slides or verbatim training wording, internal staff/agent contact info, agent-only approval workflow steps, the 'most homes sell in under three months' statistic, lender/program satisfaction rates, Trustpilot or review scores, loan volume totals, ROI/return examples, and any partner-company or Notable-related logos, screenshots, or testimonials -- none of that was provided as approved consumer marketing material.",
+
+  "headshot_display": "The site currently displays the plain (non-cutout) studio headshot — /assets/headshots/faithnanceheadshot.jpg — in a rounded, shadowed .photo-card frame (see assets/styles.css). Automated background removal was attempted but repeatedly produced visible edge artifacts against this photo's solid black backdrop, so per Faith's request the plain photo is shown as-is instead. /assets/headshots/faithnanceheadshottransparent.png (a cutout attempt) still exists in the folder but is unused by any page. If a properly background-removed version becomes available (e.g. professionally retouched, or reshot against a plain non-black backdrop), swap the .photo-card image back to a .floating-photo treatment — both CSS classes are defined in styles.css.",
+
+  "resource_library_pdfs": "The 10 downloadable guides on /clientcenter.html (in /assets/documents/) were generated in this build. IMPORTANT -- no 'Listing Presentation,' 'Buyer Presentation,' or 'Seller Options Guide' reference files were actually found anywhere in the uploads available for this build (only headshot/logo image files and one screenshot were present). Per Faith's standing instruction to flag rather than fabricate, every guide's content was written entirely from general, original real-estate-process knowledge -- none of it was copied, adapted, or reverse-engineered from any of Faith's existing presentations, and no old branding/bio/contact info/photos were referenced (none were available to reference). If Faith later provides those source presentations, the guides can be revisited to fold in any Faith-specific process details, but nothing currently published should be assumed to reflect those documents. Two more notes: (1) the cover of every guide uses the plain, non-transparent headshot cropped into a circular frame -- this was a deliberate choice to sidestep the earlier background-removal problems entirely (a circular crop hides the rectangular backdrop) rather than risk reintroducing the jagged-edge artifacts Faith flagged before; the transparent PNG was not used. (2) Faith's message for this task included a real TikTok URL (https://www.tiktok.com/@faithnancemiddletn) for the first time -- it is used inside the PDF guides' contact pages as instructed, and has been recorded above under social_links for reference, but it was NOT added to the live site footer/header since that was out of scope for this request ('do not modify the footer'). Let Faith know if she'd like TikTok added to the site itself. Editable source: /assets/documents/ holds only the final PDFs; the structured JSON content, HTML/CSS templates, and the Python/Node render scripts used to build them were delivered separately as 'FN-Home-Group-Resource-Library-Source-Files' since they aren't part of the live deployable site."
+}

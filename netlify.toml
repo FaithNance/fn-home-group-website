@@ -1,0 +1,159 @@
+[build]
+  publish = "."
+  command = ""
+
+# Epique Edge page URL was changed from /epique-edge.html to /epiqueedge.html
+# (dashes removed). Redirect the old address so any existing links, bookmarks,
+# or search results don't break.
+[[redirects]]
+  from = "/epique-edge.html"
+  to = "/epiqueedge.html"
+  status = 301
+  force = true
+
+# Site-wide dash removal: every page URL that used to contain a hyphen was
+# renamed to a dash-free equivalent. These redirects keep old links,
+# bookmarks, and search results working.
+[[redirects]]
+  from = "/client-center.html"
+  to = "/clientcenter.html"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/epique-realty.html"
+  to = "/epiquerealty.html"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/home-value.html"
+  to = "/homevalue.html"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/meet-faith.html"
+  to = "/meetfaith.html"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/legal/accessibility-statement.html"
+  to = "/legal/accessibilitystatement.html"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/legal/cookie-notice.html"
+  to = "/legal/cookienotice.html"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/legal/fair-housing.html"
+  to = "/legal/fairhousing.html"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/legal/privacy-policy.html"
+  to = "/legal/privacypolicy.html"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/legal/terms-of-use.html"
+  to = "/legal/termsofuse.html"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/communities/spring-hill.html"
+  to = "/communities/springhill.html"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/communities/thompsons-station.html"
+  to = "/communities/thompsonsstation.html"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/resources/before-applying-for-a-mortgage.html"
+  to = "/resources/beforeapplyingforamortgage.html"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/resources/what-first-time-buyers-should-expect.html"
+  to = "/resources/whatfirsttimebuyersshouldexpect.html"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/resources/how-a-comparative-market-analysis-works.html"
+  to = "/resources/howacomparativemarketanalysisworks.html"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/resources/after-an-offer-is-accepted.html"
+  to = "/resources/afteranofferisaccepted.html"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/resources/preparing-your-home-for-listing-photos.html"
+  to = "/resources/preparingyourhomeforlistingphotos.html"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/resources/understanding-earnest-money.html"
+  to = "/resources/understandingearnestmoney.html"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/resources/inspection-vs-appraisal.html"
+  to = "/resources/inspectionvsappraisal.html"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/resources/questions-to-ask-before-selling.html"
+  to = "/resources/questionstoaskbeforeselling.html"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/resources/moving-checklist-for-middle-tennessee.html"
+  to = "/resources/movingchecklistformiddletennessee.html"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/resources/interested-in-moving-but-not-ready-yet.html"
+  to = "/resources/interestedinmovingbutnotreadyyet.html"
+  status = 301
+  force = true
+
+# Custom 404 page
+[[redirects]]
+  from = "/*"
+  to = "/404.html"
+  status = 404
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"

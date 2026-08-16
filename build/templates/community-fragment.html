@@ -1,0 +1,102 @@
+<section class="page-hero">
+  <div class="container">
+    <p class="breadcrumbs"><a href="/communities.html">Communities</a> &rsaquo; {{name}}</p>
+    <span class="eyebrow">Community Guide</span>
+    <span class="accent-line"></span>
+    <h1>{{name}}, Tennessee Real Estate</h1>
+    <p class="lede">{{intro_line}}</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="two-col">
+      <div>
+        <h2>Overview</h2>
+        {{overview}}
+      </div>
+      <div class="content-photo" style="min-height:280px;">
+        <img src="{{image}}" srcset="{{image_srcset}}" sizes="(max-width: 860px) 100vw, 40vw" alt="{{image_alt}}" width="1200" height="1000" loading="lazy">
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-cream">
+  <div class="container">
+    <div class="grid grid-3">
+      <div class="card">
+        <div class="card-icon" aria-hidden="true">&#128663;</div>
+        <h3>Location &amp; Commute</h3>
+        {{commute}}
+      </div>
+      <div class="card">
+        <div class="card-icon" aria-hidden="true">&#127968;</div>
+        <h3>Housing Styles</h3>
+        {{housing}}
+      </div>
+      <div class="card">
+        <div class="card-icon" aria-hidden="true">&#9749;</div>
+        <h3>Local Amenities</h3>
+        {{amenities}}
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <h2>Helpful Local Resources</h2>
+    <p>These official links can help you research schools, utilities, zoning, and local government services independently.</p>
+    {{links}}
+    <div class="notice">
+      <strong>Please verify independently.</strong> Information about schools, zoning, utilities, taxes, commute times, and community characteristics can change. Faith encourages every buyer to independently verify all details that matter to their decision, including through the resource links above and direct contact with local agencies.
+    </div>
+  </div>
+</section>
+
+<section class="section section-greige">
+  <div class="container container-narrow">
+    <div class="section-heading">
+      <span class="eyebrow">Get Local Guidance</span>
+      <h2>Ask Faith About {{name}}</h2>
+      <p>Whether you're exploring {{name}} from nearby or relocating from out of state, Faith can share what she knows about the area and help you plan a home search that fits your goals.</p>
+    </div>
+    <div class="form-card">
+      <div class="form-success" role="status">Thank you! Your message has been received. Faith will be in touch soon.</div>
+      <div class="form-error" role="alert">Please complete the required fields below before submitting.</div>
+      <form name="community-{{slug}}" method="POST" data-netlify="true" netlify-honeypot="bot-field" action="/success.html" data-site-form novalidate>
+        <input type="hidden" name="form-name" value="community-{{slug}}">
+        <input type="hidden" name="community" value="{{name}}">
+        <p class="hidden" style="position:absolute; left:-9999px;">
+          <label>Don't fill this out if you're human: <input name="bot-field"></label>
+        </p>
+        <div class="form-grid">
+          <div class="field">
+            <label for="{{slug}}-name">Full Name <span class="required-star">*</span></label>
+            <input type="text" id="{{slug}}-name" name="full_name" required>
+            <span class="field-error">Please enter your name.</span>
+          </div>
+          <div class="field">
+            <label for="{{slug}}-email">Email <span class="required-star">*</span></label>
+            <input type="email" id="{{slug}}-email" name="email" required>
+            <span class="field-error">Please enter a valid email.</span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="{{slug}}-phone">Phone</label>
+          <input type="tel" id="{{slug}}-phone" name="phone">
+        </div>
+        <div class="field">
+          <label for="{{slug}}-message">What would you like to know about {{name}}?</label>
+          <textarea id="{{slug}}-message" name="message" placeholder="Tell Faith about your timeline, priorities, or questions."></textarea>
+        </div>
+        <div class="checkbox-field field">
+          <input type="checkbox" id="{{slug}}-consent" name="consent" required>
+          <label for="{{slug}}-consent">I consent to be contacted by Faith Nance / FN Home Group and have read the <a href="/legal/privacypolicy.html">Privacy Policy</a>. <span class="required-star">*</span></label>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Send My Question to Faith</button>
+      </form>
+    </div>
+  </div>
+</section>
