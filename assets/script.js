@@ -80,10 +80,11 @@ document.addEventListener('DOMContentLoaded', function () {
   /* ---------------- Highlight current nav link ----------------
      Scoped to direct nav links only (.main-nav > a) so the "Schedule a
      Consultation" CTA button -- which lives in .nav-cta nested inside
-     .main-nav and also points to /contact.html -- never gets treated as
-     a "current page" nav link. (That previously made its text invisible
-     on the Contact page, since the aria-current color rule matched the
-     button's own background color.)
+     .main-nav, and now opens the external scheduling page -- never gets
+     treated as a "current page" nav link. (Back when that button pointed
+     at /contact.html this made its text invisible on the Contact page,
+     since the aria-current color rule matched the button's own background
+     color. Keeping the scope means no future href can bring that back.)
      The Resources item now lives in a dropdown wrapper, so its own link and
      the grouped resource links are matched explicitly as well.
   ------------------------------------------------------------- */
