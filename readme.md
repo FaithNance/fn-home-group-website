@@ -198,7 +198,56 @@ To change a page's title or meta description, edit the `title:` / `description:`
 
 ---
 
-## 14. How to Redeploy After Making Changes
+## 14. How to Change a Scheduling Button's Calendly Event
+
+Every scheduling button on the site links through a token instead of a
+hard-coded Calendly address, and all of those tokens are defined in one place:
+the `"scheduling_links"` block in `/build/data/site-config.json`.
+
+Currently defined:
+
+| Token | Calendly event |
+| --- | --- |
+| `{{SCHEDULE_GENERAL}}` | `/fnhomegroup/consultation` |
+| `{{SCHEDULE_BUYER}}` | `/fnhomegroup/buyer-consultation` |
+| `{{SCHEDULE_LISTING}}` | `/fnhomegroup/listing-consultation` |
+| `{{SCHEDULE_AGENT_COLLABORATION}}` | `/fnhomegroup/agent-collaboration` |
+| `{{SCHEDULE_ASK_A_REALTOR}}` | `/fnhomegroup/ask-a-realtor` |
+| `{{SCHEDULE_PHONE_CALL}}` | `/fnhomegroup/phone-call` |
+| `{{SCHEDULE_IN_HOME_MEETING}}` | `/fnhomegroup/in-home-meeting` |
+| `{{SCHEDULE_REAL_ESTATE_GUIDANCE}}` | `/fnhomegroup/real-estate-guidance` |
+
+To point an existing button at a different event, change that token's value in
+`site-config.json` and run `python3 build/scripts/generate.py`. Every page that
+uses the token is rewritten, so nothing can drift out of sync.
+
+To add a scheduling button to a page, use the token in the `href` of a link in
+`/build/pages/` or `/build/templates/`, keeping `target="_blank"` and
+`rel="noopener noreferrer"` as the existing buttons do:
+
+```html
+<a class="btn btn-primary" href="{{SCHEDULE_PHONE_CALL}}" target="_blank" rel="noopener noreferrer">Label</a>
+```
+
+Two safety checks are built into the generator, and both stop the build rather
+than publishing something wrong:
+
+- an `href` using a `{{SCHEDULE_*}}` token that is not defined in
+  `site-config.json` (a typo, for example) is rejected;
+- any `calendly.com` address in a page that is not one of the public events
+  listed above is rejected. This is what keeps Faith's private, client-only
+  booking events (client check ins, contract timeline reviews, offer reviews)
+  off the public site. Those private links are deliberately not stored anywhere
+  in this project, because the whole project folder is what gets published.
+
+Analytics needs no changes when a button is added or repointed: a single click
+handler in `/assets/analytics.js` recognises any Calendly link and records one
+`consultation_click` per click, only after a visitor has accepted analytics in
+the privacy notice.
+
+---
+
+## 15. How to Redeploy After Making Changes
 
 **If using drag-and-drop deploys:** run `python3 build/scripts/generate.py`, then drag the updated project root folder onto Netlify's deploy area again.
 

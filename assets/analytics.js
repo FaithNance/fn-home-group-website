@@ -134,7 +134,13 @@
       return { name: 'seller_guide_request' };
     }
 
-    if (/consultation/i.test(label) || /consultation/i.test(hash)) {
+    /* Every scheduling button on the site points at Calendly, whichever event
+       it books (general, buyer, listing, and so on). Matching the host as well
+       as the label keeps a single consultation_click per click even if a
+       button's label never says "consultation". Still one event: the first
+       rule that matches wins, and there is only ever one click listener. */
+    if (SCHEDULING_HOST.test(host) ||
+        /consultation/i.test(label) || /consultation/i.test(hash)) {
       return { name: 'consultation_click' };
     }
     if (/search/i.test(label)) return { name: 'home_search_click' };

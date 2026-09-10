@@ -10,6 +10,8 @@ This script assembles the deployable static website from:
                                   a simple front-matter block for SEO metadata)
   - build/data/communities.json (data used to generate one page per community)
   - build/data/articles.json    (data used to generate one page per article)
+  - build/data/site-config.json ("scheduling_links": the one place every
+                                  scheduling button's destination is defined)
   - build/templates/community-fragment.html  (template for community pages)
   - build/templates/article-fragment.html    (template for article pages)
 
@@ -36,6 +38,13 @@ DATA = os.path.join(BUILD, "data")
 
 SITE_URL = "https://www.fnhomegroup.com"
 
+# Any calendly.com address at all found in a page about to be written must be
+# one of the publicly bookable events listed in site-config.json. Faith's
+# client-only events (check ins, contract timeline reviews, offer reviews) are
+# never stored in this repository -- the repository root is what gets published
+# -- and this guard is what stops one from being pasted into a page by mistake.
+SCHEDULING_HOST_PATTERN = re.compile(r"https?://(?:[\w-]+\.)*calendly\.com/[^\s\"'<>]*")
+
 
 def read(path):
     with open(path, "r", encoding="utf-8") as f:
@@ -43,9 +52,56 @@ def read(path):
 
 
 def write(path, content):
+    check_public_scheduling_only(content, path)
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
         f.write(content)
+
+
+def load_scheduling_links():
+    """Return the {token: destination} map from build/data/site-config.json.
+
+    Templates and page fragments never hard-code a scheduling address; they
+    write a token such as {{SCHEDULE_BUYER}} and the generator fills it in, so
+    every scheduling button on the site is defined in exactly one place.
+    """
+    config_path = os.path.join(DATA, "site-config.json")
+    if not os.path.exists(config_path):
+        return {}
+    return json.loads(read(config_path)).get("scheduling_links", {})
+
+
+SCHEDULING_LINKS = load_scheduling_links()
+PUBLIC_SCHEDULING_URLS = frozenset(SCHEDULING_LINKS.values())
+
+
+def fill_scheduling_links(html):
+    """Replace every {{SCHEDULE_*}} token with its destination."""
+    def repl(match):
+        token = match.group(1)
+        if token not in SCHEDULING_LINKS:
+            raise ValueError(
+                "Unknown scheduling token {{%s}}. Add it to 'scheduling_links' "
+                "in build/data/site-config.json first." % token
+            )
+        return SCHEDULING_LINKS[token]
+    return re.sub(r"\{\{(SCHEDULE_\w+)\}\}", repl, html)
+
+
+def check_public_scheduling_only(html, path):
+    """Refuse to write a page that links to a scheduling event we don't publish.
+
+    Every calendly.com address in generated output has to be one of the public
+    events in site-config.json, so a private client-only booking link can never
+    reach the deployed site.
+    """
+    for url in SCHEDULING_HOST_PATTERN.findall(html):
+        if url not in PUBLIC_SCHEDULING_URLS:
+            raise ValueError(
+                "%s links to a scheduling address that is not a published "
+                "public event: %s. Use a {{SCHEDULE_*}} token instead."
+                % (os.path.relpath(path, ROOT), url)
+            )
 
 
 def parse_frontmatter(text):
@@ -151,6 +207,7 @@ def render_page(meta, body, base_tpl, nav_tpl, footer_tpl, extra_schema=None, ro
     html = html.replace("{{NAV}}", nav_tpl)
     html = html.replace("{{FOOTER}}", footer_tpl)
     html = html.replace("{{CONTENT}}", body)
+    html = fill_scheduling_links(html)
     html = rootify_links(html, root_prefix)
     return html
 
@@ -212,7 +269,7 @@ def main():
         communities = json.loads(read(community_data_path))
         community_tpl = read(os.path.join(TEMPLATES, "community-fragment.html"))
         for c in communities:
-            body = fill_tokens(community_tpl, c)
+            body = fill_tokens(community_tpl, dict(SCHEDULING_LINKS, **c))
             meta = {
                 "title": f"{c['name']} TN Real Estate | FN Home Group",
                 "description": c.get("meta_description", ""),
@@ -230,7 +287,7 @@ def main():
         articles = json.loads(read(article_data_path))
         article_tpl = read(os.path.join(TEMPLATES, "article-fragment.html"))
         for a in articles:
-            body = fill_tokens(article_tpl, a)
+            body = fill_tokens(article_tpl, dict(SCHEDULING_LINKS, **a))
             meta = {
                 "title": f"{a['title']} | FN Home Group Resources",
                 "description": a.get("meta_description", ""),
