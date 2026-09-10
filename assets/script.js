@@ -14,13 +14,66 @@ document.addEventListener('DOMContentLoaded', function () {
       var expanded = toggle.getAttribute('aria-expanded') === 'true';
       toggle.setAttribute('aria-expanded', String(!expanded));
       nav.classList.toggle('is-open');
+      // Collapse any expanded nav dropdown group with the menu itself
+      if (expanded && typeof closeDropdowns === 'function') closeDropdowns(null);
     });
     // Close menu when a link is clicked (mobile)
     nav.querySelectorAll('a').forEach(function (link) {
       link.addEventListener('click', function () {
         nav.classList.remove('is-open');
         toggle.setAttribute('aria-expanded', 'false');
+        if (typeof closeDropdowns === 'function') closeDropdowns(null);
       });
+    });
+  }
+
+  /* ---------------- Resources nav dropdown ----------------
+     The dropdown's parent item stays a real link (Resource Hub); the caret
+     button next to it opens the grouped resource pages. CSS also opens the
+     menu on hover/keyboard focus at desktop widths, so this handler only
+     owns the click/touch state -- which is what mobile depends on, since
+     the stacked menu has no hover.
+  ------------------------------------------------------------- */
+  var dropdowns = Array.prototype.slice.call(document.querySelectorAll('[data-nav-dropdown]'));
+  function closeDropdowns(except, dismissed) {
+    dropdowns.forEach(function (dd) {
+      if (dd === except) return;
+      dd.classList.remove('is-open');
+      dd.classList.toggle('is-closed', !!dismissed);
+      var btn = dd.querySelector('[data-nav-dropdown-toggle]');
+      if (btn) btn.setAttribute('aria-expanded', 'false');
+    });
+  }
+  dropdowns.forEach(function (dd) {
+    var btn = dd.querySelector('[data-nav-dropdown-toggle]');
+    if (!btn) return;
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      var open = dd.classList.contains('is-open');
+      closeDropdowns(dd);
+      dd.classList.toggle('is-open', !open);
+      // Dismissing keeps the menu shut even though the caret still holds
+      // focus (and the pointer); moving away clears that state below.
+      dd.classList.toggle('is-closed', open);
+      btn.setAttribute('aria-expanded', String(!open));
+    });
+    dd.addEventListener('mouseleave', function () { dd.classList.remove('is-closed'); });
+    dd.addEventListener('focusout', function (e) {
+      if (!dd.contains(e.relatedTarget)) dd.classList.remove('is-closed');
+    });
+  });
+  if (dropdowns.length) {
+    document.addEventListener('click', function (e) {
+      var inside = dropdowns.some(function (dd) { return dd.contains(e.target); });
+      if (!inside) closeDropdowns(null);
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape') return;
+      var openDd = dropdowns.filter(function (dd) { return dd.classList.contains('is-open'); })[0];
+      if (!openDd) return;
+      closeDropdowns(null, true);
+      var btn = openDd.querySelector('[data-nav-dropdown-toggle]');
+      if (btn) btn.focus();
     });
   }
 
@@ -31,9 +84,11 @@ document.addEventListener('DOMContentLoaded', function () {
      a "current page" nav link. (That previously made its text invisible
      on the Contact page, since the aria-current color rule matched the
      button's own background color.)
+     The Resources item now lives in a dropdown wrapper, so its own link and
+     the grouped resource links are matched explicitly as well.
   ------------------------------------------------------------- */
   var currentPath = window.location.pathname.replace(/\/index\.html$/, '/').replace(/index\.html$/, '');
-  document.querySelectorAll('.main-nav > a, .footer-nav a').forEach(function (link) {
+  document.querySelectorAll('.main-nav > a, .nav-dropdown > a, .nav-dropdown-menu a, .footer-nav a').forEach(function (link) {
     var href = link.getAttribute('href');
     if (!href) return;
     var linkPath = href.replace(/\/index\.html$/, '/').replace(/index\.html$/, '');

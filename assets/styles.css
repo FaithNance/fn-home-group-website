@@ -316,6 +316,67 @@ select:focus-visible, textarea:focus-visible, summary:focus-visible{
   .brand img{ height: 50px; }
 }
 
+/* ------------------------- Nav dropdown (Resources) -----------------------
+   The "Resources" nav item keeps its own direct link to the Resource Hub and
+   gains a compact caret button that reveals related resource pages. Desktop
+   opens on hover or keyboard focus; the caret button (aria-expanded) drives
+   the same open state for click and touch, which is what mobile relies on. */
+.nav-dropdown{ position: relative; display: flex; align-items: center; gap: 0.1rem; }
+.nav-dropdown-toggle{
+  background: transparent; border: none; cursor: pointer; padding: 0.3rem 0;
+  width: 16px; display: inline-flex; align-items: center; justify-content: center;
+  color: var(--color-charcoal); transition: color var(--transition);
+}
+.nav-dropdown-toggle:hover{ color: var(--color-dusty-blue-dark); }
+.nav-caret{
+  display: block; width: 0; height: 0;
+  border-left: 4px solid transparent; border-right: 4px solid transparent;
+  border-top: 5px solid currentColor;
+  transition: transform var(--transition);
+}
+.nav-dropdown-toggle[aria-expanded="true"] .nav-caret{ transform: rotate(180deg); }
+.nav-dropdown-menu{
+  display: none; position: absolute; top: 100%; left: 0; z-index: 1001;
+  min-width: 265px; padding: 0.4rem 0;
+  background: var(--color-warm-white);
+  border: 1px solid var(--color-border); border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+}
+.nav-dropdown-menu a{ display: block; padding: 0.6rem 1.1rem; font-size: 0.9rem; }
+.nav-dropdown-menu a:hover{ background: var(--color-cream); color: var(--color-dusty-blue-dark); }
+.nav-dropdown.is-open .nav-dropdown-menu{ display: block; }
+
+/* Pointer and keyboard opening is desktop only: the stacked mobile menu has
+   no hover, and a tap focuses the caret, so a focus-driven rule there would
+   fight the tap-to-collapse state. Above the nav breakpoint, hovering or
+   tabbing into the item reveals the menu.
+   .is-closed marks a menu the visitor just dismissed (Escape, or a second
+   press of the caret). Without it, the pointer or focus still inside the
+   dropdown would immediately re-open it and dismissing would appear to do
+   nothing. It clears as soon as the pointer or focus leaves. */
+@media (min-width: 1241px){
+  .nav-dropdown:not(.is-closed):hover .nav-dropdown-menu,
+  .nav-dropdown:not(.is-closed):focus-within .nav-dropdown-menu{ display: block; }
+}
+
+/* Stacked mobile menu: the dropdown becomes an inline expandable group.
+   Hover/focus opening is disabled here so a tap on the caret (not a stray
+   focus) is what expands the group. Breakpoint matches .main-nav above. */
+@media (max-width: 1240px){
+  .nav-dropdown{ flex-wrap: wrap; border-bottom: 1px solid var(--color-border); }
+  .nav-dropdown > a{ flex: 1 1 auto; border-bottom: none; }
+  .nav-dropdown-toggle{ width: 44px; height: 44px; }
+  .nav-caret{ border-left-width: 5px; border-right-width: 5px; border-top-width: 6px; }
+  .nav-dropdown-menu{
+    position: static; width: 100%; flex-basis: 100%; min-width: 0;
+    padding: 0 0 0.4rem 0.9rem;
+    background: transparent; border: none; box-shadow: none;
+  }
+  .nav-dropdown-menu a{ padding: 0.75rem 0; font-size: 0.98rem; border-bottom: 1px solid var(--color-border); }
+  .nav-dropdown-menu a:hover{ background: transparent; }
+  .nav-dropdown-menu a:last-child{ border-bottom: none; }
+}
+
 /* --------------------------------- Hero ---------------------------------- */
 .hero{
   background: linear-gradient(160deg, var(--color-cream) 0%, var(--color-warm-white) 55%, var(--color-champagne) 100%);
@@ -816,4 +877,24 @@ th{ font-family: var(--font-heading); font-weight:600; color: var(--color-dusty-
 @media (prefers-reduced-motion: reduce){
   .community-carousel-track{ transition: none; }
   .community-carousel-arrow{ transition: none; }
+}
+
+/* ------------------- The Human Behind the House heart icon ----------------
+   The supplied THBTH icon is used exactly as provided (no crop, recolor, or
+   redraw), so its own transparent margin is part of the file. Sizing is set
+   on the wrapper and the surrounding margins are pulled in slightly so the
+   artwork reads at the intended scale without touching the image itself. */
+.thbth-mark{ width: 100%; max-width: 440px; margin: -1rem auto -1.25rem; }
+.thbth-mark img{ width: 100%; height: auto; }
+.thbth-hero{ text-align: center; }
+/* Card slot: the artwork inside the supplied file sits inside a transparent
+   margin (measured: 31.6% left, 20.8% top, 31.2% right, 32.4% bottom of the
+   file). Nothing is cropped or rescaled unevenly -- negative margins simply
+   let the layout ignore that transparent margin, so the heart itself lands at
+   52px tall (the same size as the .card-icon circle beside it) and lines up
+   flush with the card text below. */
+.thbth-card-icon{ width: 166px; margin: -23px -52px -20px -52.5px; }
+.thbth-card-icon img{ width: 100%; height: auto; }
+@media (max-width: 640px){
+  .thbth-mark{ max-width: 300px; margin: -0.75rem auto -1rem; }
 }
