@@ -37,6 +37,7 @@ PAGES = os.path.join(BUILD, "pages")
 DATA = os.path.join(BUILD, "data")
 
 SITE_URL = "https://www.fnhomegroup.com"
+DEFAULT_OG_IMAGE = SITE_URL + "/assets/logos/fnhomegrouplogo.png"
 
 # Any calendly.com address at all found in a page about to be written must be
 # one of the publicly bookable events listed in site-config.json. Faith's
@@ -193,7 +194,8 @@ def rootify_links(html, root_prefix):
     return html
 
 
-def render_page(meta, body, base_tpl, nav_tpl, footer_tpl, extra_schema=None, root_prefix=""):
+def render_page(meta, body, base_tpl, nav_tpl, footer_tpl, extra_schema=None,
+                root_prefix="", rootify=True):
     canonical_path = meta.get("canonical", "/")
     canonical = SITE_URL + canonical_path
     html = base_tpl
@@ -201,6 +203,8 @@ def render_page(meta, body, base_tpl, nav_tpl, footer_tpl, extra_schema=None, ro
     html = html.replace("{{OG_TITLE}}", meta.get("title", "FN Home Group"))
     html = html.replace("{{DESCRIPTION}}", meta.get("description", ""))
     html = html.replace("{{CANONICAL}}", canonical)
+    html = html.replace("{{OG_TYPE}}", meta.get("ogtype", "website"))
+    html = html.replace("{{OG_IMAGE}}", meta.get("ogimage", DEFAULT_OG_IMAGE))
     html = html.replace("{{BODY_CLASS}}", meta.get("bodyclass", ""))
     schema = extra_schema if extra_schema is not None else schema_block(meta)
     html = html.replace("{{SCHEMA}}", schema)
@@ -208,7 +212,8 @@ def render_page(meta, body, base_tpl, nav_tpl, footer_tpl, extra_schema=None, ro
     html = html.replace("{{FOOTER}}", footer_tpl)
     html = html.replace("{{CONTENT}}", body)
     html = fill_scheduling_links(html)
-    html = rootify_links(html, root_prefix)
+    if rootify:
+        html = rootify_links(html, root_prefix)
     return html
 
 
@@ -236,6 +241,241 @@ def fill_tokens(template_str, tokens):
         key = match.group(1)
         return str(tokens.get(key, ""))
     return re.sub(r"\{\{(\w+)\}\}", repl, template_str)
+
+
+# ---------------------------------------------------------------------------
+# Blog pages (imported from the Wix Blog by build/scripts/wixblog.py)
+# ---------------------------------------------------------------------------
+
+BLOG_SNAPSHOT = os.path.join(DATA, "wixposts.json")
+
+
+def esc_attr(value):
+    """Escape a value for use in HTML text or an attribute."""
+    return (str(value)
+            .replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            .replace('"', "&quot;")
+            .replace("'", "&#39;"))
+
+
+def read_time(post):
+    minutes = int(post.get("minutes_to_read") or 0)
+    if minutes < 1:
+        return ""
+    return "%d minute read" % minutes
+
+
+def post_meta_line(post, separator=" &middot; "):
+    """Author, publication date, and reading time, in the site's meta style."""
+    parts = [post.get("author") or "", post.get("published_display") or "",
+             read_time(post)]
+    return separator.join(part for part in parts if part)
+
+
+def cover_img_tag(post, css_class, sizes=None):
+    cover = post.get("cover") or {}
+    url = cover.get("url") or ""
+    if not url:
+        return ""
+    attrs = ['src="%s"' % esc_attr(url)]
+    alt = cover.get("alt") or post.get("title") or ""
+    attrs.append('alt="%s"' % esc_attr(alt))
+    if cover.get("width"):
+        attrs.append('width="%d"' % int(cover["width"]))
+    if cover.get("height"):
+        attrs.append('height="%d"' % int(cover["height"]))
+    if sizes:
+        attrs.append('sizes="%s"' % esc_attr(sizes))
+    attrs.append('decoding="async"')
+    return '<div class="%s"><img %s></div>' % (css_class, " ".join(attrs))
+
+
+def blog_card(post, featured=False):
+    """One post card for the blog index, built from the site's card styles."""
+    href = "/blog/" + post["slug"]
+    title = esc_attr(post.get("title") or "")
+    excerpt = esc_attr(post.get("excerpt") or "")
+    meta = post_meta_line(post)
+
+    if featured:
+        media = cover_img_tag(post, "blog-feature-media")
+        media = media.replace("<img ", '<img loading="eager" fetchpriority="high" ')
+        return (
+            '<a class="blog-feature" href="%s">'
+            '%s'
+            '<div class="blog-feature-text">'
+            '<span class="tag">Latest post</span>'
+            '<h2>%s</h2>'
+            '<p class="blog-card-meta">%s</p>'
+            '<p>%s</p>'
+            '<span class="blog-card-link">Read the full article</span>'
+            '</div></a>'
+        ) % (href, media, title, meta, excerpt)
+
+    media = cover_img_tag(post, "blog-card-media")
+    media = media.replace("<img ", '<img loading="lazy" ')
+    return (
+        '<a class="card blog-card" href="%s">'
+        '%s'
+        '<div class="blog-card-text">'
+        '<h3>%s</h3>'
+        '<p class="blog-card-meta">%s</p>'
+        '<p>%s</p>'
+        '<span class="blog-card-link">Read the full article</span>'
+        '</div></a>'
+    ) % (href, media, title, meta, excerpt)
+
+
+def blog_post_schema(post):
+    """JSON-LD plus the article specific head tags for a single blog post."""
+    canonical = SITE_URL + "/blog/" + post["slug"]
+    image = (post.get("cover") or {}).get("url") or DEFAULT_OG_IMAGE
+    data = {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": post.get("title", ""),
+        "description": post.get("meta_description", ""),
+        "image": image,
+        "datePublished": post.get("published", ""),
+        "dateModified": post.get("updated") or post.get("published", ""),
+        "author": {
+            "@type": "Person",
+            "name": post.get("author") or "Faith Nance",
+            "url": SITE_URL + "/meetfaith.html"
+        },
+        "publisher": {
+            "@type": "RealEstateAgent",
+            "name": "FN Home Group",
+            "logo": {
+                "@type": "ImageObject",
+                "url": SITE_URL + "/assets/logos/fnhomegrouplogo.png"
+            }
+        },
+        "mainEntityOfPage": {"@type": "WebPage", "@id": canonical},
+        "url": canonical,
+        "isPartOf": {"@type": "Blog", "name": "FN Home Group Blog",
+                     "url": SITE_URL + "/blog"}
+    }
+    head = ['<meta property="article:published_time" content="%s">'
+            % esc_attr(post.get("published", ""))]
+    if post.get("updated"):
+        head.append('<meta property="article:modified_time" content="%s">'
+                     % esc_attr(post["updated"]))
+    head.append('<meta property="article:author" content="%s">'
+                % esc_attr(post.get("author") or "Faith Nance"))
+    head.append('<script type="application/ld+json">\n'
+                + json.dumps(data, indent=2, ensure_ascii=False) + "\n</script>")
+    return "\n".join(head)
+
+
+def blog_index_schema(posts):
+    data = {
+        "@context": "https://schema.org",
+        "@type": "Blog",
+        "name": "FN Home Group Blog",
+        "description": ("Real estate notes, neighborhood comparisons, and market "
+                        "guidance for Southern Middle Tennessee from Faith Nance, "
+                        "REALTOR\u00ae."),
+        "url": SITE_URL + "/blog",
+        "publisher": {"@type": "RealEstateAgent", "name": "FN Home Group",
+                      "url": SITE_URL},
+        "blogPost": [
+            {
+                "@type": "BlogPosting",
+                "headline": post.get("title", ""),
+                "url": SITE_URL + "/blog/" + post["slug"],
+                "datePublished": post.get("published", ""),
+                "author": {"@type": "Person",
+                           "name": post.get("author") or "Faith Nance"}
+            }
+            for post in posts
+        ]
+    }
+    return ('<script type="application/ld+json">\n'
+            + json.dumps(data, indent=2, ensure_ascii=False) + "\n</script>")
+
+
+def build_blog(base_tpl, nav_tpl, footer_tpl):
+    """Render /blog and /blog/<slug>/ from the imported Wix post snapshot.
+
+    Blog pages are served at directory addresses (/blog and /blog/<slug>), so
+    unlike the rest of the site their asset and navigation links stay
+    root absolute instead of being rewritten to relative paths.
+
+    Returns a list of (path, canonical) pairs for the sitemap.
+    """
+    if not os.path.exists(BLOG_SNAPSHOT):
+        print("  (no build/data/wixposts.json yet; /blog was not rendered)")
+        return []
+
+    snapshot = json.loads(read(BLOG_SNAPSHOT))
+    posts = [p for p in snapshot.get("posts", []) if p.get("slug") and p.get("title")]
+    posts.sort(key=lambda p: p.get("published") or "", reverse=True)
+
+    generated = []
+    index_tpl = read(os.path.join(TEMPLATES, "blog-index-fragment.html"))
+    post_tpl = read(os.path.join(TEMPLATES, "blog-post-fragment.html"))
+
+    # --- index -------------------------------------------------------------
+    featured_html = ""
+    grid_html = ""
+    empty_html = ""
+    if posts:
+        featured_html = blog_card(posts[0], featured=True)
+        if len(posts) > 1:
+            cards = "".join(blog_card(p) for p in posts[1:])
+            grid_html = '<div class="grid blog-grid">' + cards + "</div>"
+    else:
+        empty_html = ('<div class="notice"><strong>New posts are on the way.</strong> '
+                      'Faith is writing the next one now. In the meantime, the '
+                      '<a href="/resources.html">Resource Hub</a> has plenty to '
+                      'read.</div>')
+
+    index_body = fill_tokens(index_tpl, dict(SCHEDULING_LINKS,
+                                             FEATURED=featured_html,
+                                             POSTS=grid_html,
+                                             EMPTY=empty_html))
+    index_meta = {
+        "title": "Blog | FN Home Group | Faith Nance, REALTOR\u00ae",
+        "description": ("Real estate notes, neighborhood comparisons, and market "
+                        "guidance for Southern Middle Tennessee from Faith Nance, "
+                        "REALTOR\u00ae with Epique Realty."),
+        "canonical": "/blog",
+        "bodyclass": "page-blog",
+    }
+    html = render_page(index_meta, index_body, base_tpl, nav_tpl, footer_tpl,
+                       extra_schema=blog_index_schema(posts), rootify=False)
+    write(os.path.join(ROOT, "blog", "index.html"), html)
+    generated.append(("/blog", "/blog"))
+
+    # --- one page per published post ---------------------------------------
+    for post in posts:
+        cover = cover_img_tag(post, "blog-post-cover", sizes="(max-width: 820px) 100vw, 760px")
+        cover = cover.replace("<img ", '<img loading="eager" fetchpriority="high" ')
+        body = fill_tokens(post_tpl, dict(
+            SCHEDULING_LINKS,
+            TITLE=esc_attr(post.get("title") or ""),
+            META=post_meta_line(post),
+            COVER=cover,
+            BODY=post.get("body_html") or "",
+            SLUG=post["slug"],
+        ))
+        meta = {
+            "title": "%s | FN Home Group Blog" % post.get("title", ""),
+            "description": post.get("meta_description", ""),
+            "canonical": "/blog/" + post["slug"],
+            "bodyclass": "page-blogpost",
+            "ogtype": "article",
+            "ogimage": (post.get("cover") or {}).get("url") or DEFAULT_OG_IMAGE,
+        }
+        html = render_page(meta, body, base_tpl, nav_tpl, footer_tpl,
+                           extra_schema=blog_post_schema(post), rootify=False)
+        write(os.path.join(ROOT, "blog", post["slug"], "index.html"), html)
+        generated.append(("/blog/" + post["slug"], "/blog/" + post["slug"]))
+
+    return generated
 
 
 def main():
@@ -299,7 +539,10 @@ def main():
             write(out_path, html)
             generated.append((f"/resources/{a['slug']}.html", meta["canonical"]))
 
-    # 4. sitemap.xml (auto-generated from every page produced above)
+    # 4. Blog pages imported from the Wix Blog
+    generated.extend(build_blog(base_tpl, nav_tpl, footer_tpl))
+
+    # 5. sitemap.xml (auto-generated from every page produced above)
     sitemap_lines = [
         '<?xml version="1.0" encoding="UTF-8"?>',
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
