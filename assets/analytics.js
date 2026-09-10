@@ -58,11 +58,19 @@
     return text.slice(0, MAX_LEN);
   }
 
+  /* The external scheduling host. Calendly accepts prefill parameters in the
+     query string (for example a visitor's name or email address), so the query
+     is always dropped from what gets reported for these links: only the static
+     scheduling address authored in the HTML is ever sent, and no booking
+     details of any kind are read. */
+  var SCHEDULING_HOST = /(^|\.)calendly\.com$/;
+
   /* Internal destinations report path (+ in-page anchor); external ones report
      the full authored URL. Both come from the markup, not from the visitor. */
   function destinationOf(a) {
     if (a.hostname && a.hostname !== window.location.hostname) {
-      return (a.protocol + '//' + a.hostname + a.pathname + a.search).slice(0, MAX_LEN);
+      var query = SCHEDULING_HOST.test((a.hostname || '').toLowerCase()) ? '' : a.search;
+      return (a.protocol + '//' + a.hostname + a.pathname + query).slice(0, MAX_LEN);
     }
     return (a.pathname + a.hash).slice(0, MAX_LEN);
   }
