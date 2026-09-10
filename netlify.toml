@@ -140,6 +140,20 @@
   status = 301
   force = true
 
+# New resource pages are published at extensionless addresses (/gmfamilies and
+# /humanbehindthehouse), which is how they are linked from the navigation,
+# homepage, and footer. These rewrites serve the generated HTML at those
+# addresses with a 200 so the clean URL is the real, canonical location.
+[[redirects]]
+  from = "/gmfamilies"
+  to = "/gmfamilies.html"
+  status = 200
+
+[[redirects]]
+  from = "/humanbehindthehouse"
+  to = "/humanbehindthehouse.html"
+  status = 200
+
 # Custom 404 page
 [[redirects]]
   from = "/*"

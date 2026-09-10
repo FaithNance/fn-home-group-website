@@ -155,6 +155,25 @@ def render_page(meta, body, base_tpl, nav_tpl, footer_tpl, extra_schema=None, ro
     return html
 
 
+def redirected_paths():
+    """Return the set of page paths that netlify.toml permanently redirects away.
+
+    Some pages exist twice on purpose: the current dash-free address plus the
+    older hyphenated address it replaced, which netlify.toml 301s to the new
+    one. Both are generated so the old address keeps working, but only the
+    destination belongs in the sitemap -- listing a permanently redirected URL
+    there sends search engines to a page that immediately redirects.
+    """
+    config_path = os.path.join(ROOT, "netlify.toml")
+    if not os.path.exists(config_path):
+        return set()
+    blocks = re.findall(
+        r'from\s*=\s*"([^"]+)"\s*\n\s*to\s*=\s*"[^"]*"\s*\n\s*status\s*=\s*301',
+        read(config_path),
+    )
+    return set(blocks)
+
+
 def fill_tokens(template_str, tokens):
     def repl(match):
         key = match.group(1)
@@ -184,7 +203,8 @@ def main():
             root_prefix = "../" * depth
             html = render_page(meta, body, base_tpl, nav_tpl, footer_tpl, root_prefix=root_prefix)
             write(out_path, html)
-            generated.append("/" + out_rel.replace(os.sep, "/"))
+            out_url = "/" + out_rel.replace(os.sep, "/")
+            generated.append((out_url, meta.get("canonical", out_url)))
 
     # 2. Community pages generated from data + template
     community_data_path = os.path.join(DATA, "communities.json")
@@ -202,7 +222,7 @@ def main():
             html = render_page(meta, body, base_tpl, nav_tpl, footer_tpl, root_prefix="../")
             out_path = os.path.join(ROOT, "communities", f"{c['slug']}.html")
             write(out_path, html)
-            generated.append(f"/communities/{c['slug']}.html")
+            generated.append((f"/communities/{c['slug']}.html", meta["canonical"]))
 
     # 3. Article pages generated from data + template
     article_data_path = os.path.join(DATA, "articles.json")
@@ -220,25 +240,25 @@ def main():
             html = render_page(meta, body, base_tpl, nav_tpl, footer_tpl, root_prefix="../")
             out_path = os.path.join(ROOT, "resources", f"{a['slug']}.html")
             write(out_path, html)
-            generated.append(f"/resources/{a['slug']}.html")
+            generated.append((f"/resources/{a['slug']}.html", meta["canonical"]))
 
     # 4. sitemap.xml (auto-generated from every page produced above)
     sitemap_lines = [
         '<?xml version="1.0" encoding="UTF-8"?>',
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
     ]
-    EXCLUDE_FROM_SITEMAP = {"/404.html", "/success.html"}
-    for path in generated:
+    EXCLUDE_FROM_SITEMAP = {"/404.html", "/success.html"} | redirected_paths()
+    for path, canonical in generated:
         if path in EXCLUDE_FROM_SITEMAP:
             continue
-        loc_path = "/" if path == "/index.html" else path
+        loc_path = canonical or ("/" if path == "/index.html" else path)
         sitemap_lines.append(f"  <url>\n    <loc>{SITE_URL}{loc_path}</loc>\n  </url>")
     sitemap_lines.append("</urlset>")
     write(os.path.join(ROOT, "sitemap.xml"), "\n".join(sitemap_lines) + "\n")
 
     print(f"Generated {len(generated)} pages + sitemap.xml.")
-    for g in generated:
-        print("  ", g)
+    for path, _canonical in generated:
+        print("  ", path)
 
 
 if __name__ == "__main__":
