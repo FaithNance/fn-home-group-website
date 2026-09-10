@@ -1,6 +1,14 @@
 [build]
   publish = "."
-  command = ""
+  # The Wix import runs first: it reads the published Wix Blog posts using the
+  # WIX_API_KEY / WIX_SITE_ID build environment variables and writes them to
+  # build/data/wixposts.json. The generator then renders the whole site,
+  # including /blog and one page per published post, from that snapshot. The
+  # API key is only ever read inside this build step, so it never reaches the
+  # browser or any published file. If Wix cannot be reached, the import reuses
+  # the committed snapshot; if there is nothing to fall back on it exits non
+  # zero so the build fails and the live site is left untouched.
+  command = "python3 build/scripts/wixblog.py && python3 build/scripts/generate.py"
 
 # Epique Edge page URL was changed from /epique-edge.html to /epiqueedge.html
 # (dashes removed). Redirect the old address so any existing links, bookmarks,
