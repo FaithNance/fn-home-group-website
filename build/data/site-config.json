@@ -22,6 +22,19 @@
 
   "brand_logo": "/assets/logos/fnhomegrouplogo.png",
 
+  "_scheduling_links_comment": "WIRED INTO THE GENERATOR -- unlike the rest of this file, the \"scheduling_links\" block below is read directly by build/scripts/generate.py. Every scheduling button in build/templates/ and build/pages/ links through one of these tokens (for example {{SCHEDULE_BUYER}}) instead of a hard-coded address, so a destination only ever has to be changed here and then `python3 build/scripts/generate.py` re-run for every page to follow. Only publicly bookable events belong here: the generator refuses to write a page containing any calendly.com address that is not listed below, which is what keeps private/client-only booking links (check ins, contract timeline reviews, offer reviews) out of the deployed site. Those private links are deliberately NOT stored in this repository at all, because the whole repository root is what gets published.",
+
+  "scheduling_links": {
+    "SCHEDULE_GENERAL": "https://calendly.com/fnhomegroup/consultation",
+    "SCHEDULE_BUYER": "https://calendly.com/fnhomegroup/buyer-consultation",
+    "SCHEDULE_LISTING": "https://calendly.com/fnhomegroup/listing-consultation",
+    "SCHEDULE_AGENT_COLLABORATION": "https://calendly.com/fnhomegroup/agent-collaboration",
+    "SCHEDULE_ASK_A_REALTOR": "https://calendly.com/fnhomegroup/ask-a-realtor",
+    "SCHEDULE_PHONE_CALL": "https://calendly.com/fnhomegroup/phone-call",
+    "SCHEDULE_IN_HOME_MEETING": "https://calendly.com/fnhomegroup/in-home-meeting",
+    "SCHEDULE_REAL_ESTATE_GUIDANCE": "https://calendly.com/fnhomegroup/real-estate-guidance"
+  },
+
   "brand_colors": {
     "dusty_blue": "#7C93A8",
     "dusty_blue_dark": "#5C7791",
