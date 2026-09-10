@@ -26,7 +26,43 @@
 <link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/appletouchicon.png">
 
-<link rel="stylesheet" href="assets/styles.css?v=20260801-2">
+<link rel="stylesheet" href="assets/styles.css?v=20260910">
+
+<!-- Google Consent Mode defaults. Analytics storage is denied until the
+     visitor chooses "Accept Analytics" in the privacy notice, so no analytics
+     cookie is read or written before then. Runs before the Google tag below,
+     which is what makes the default take effect. A previously saved choice is
+     re-applied here, synchronously, so an accepting visitor is not downgraded
+     for the first moments of every page. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    'ad_storage': 'denied',
+    'ad_user_data': 'denied',
+    'ad_personalization': 'denied',
+    'analytics_storage': 'denied'
+  });
+  try {
+    if (window.localStorage && window.localStorage.getItem('fnhgAnalyticsConsent') === 'granted') {
+      gtag('consent', 'update', { 'analytics_storage': 'granted' });
+    }
+  } catch (e) { /* storage blocked: stay denied */ }
+</script>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-RP01WS7PTH"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-RP01WS7PTH');
+</script>
+<!-- FN Home Group analytics events (no personal data is collected) -->
+<script src="assets/analytics.js?v=20260910" defer></script>
+<!-- Privacy notice and the footer Privacy Choices control -->
+<script src="assets/consent.js?v=20260910" defer></script>
 
 </head>
 <body class="page-vendors">
@@ -194,6 +230,7 @@
         <a href="legal/disclaimer.html">Disclaimer</a>
         <a href="legal/dmca.html">DMCA</a>
         <a href="legal/cookienotice.html">Cookie Notice</a>
+        <a href="legal/cookienotice.html" data-privacy-choices>Privacy Choices</a>
       </div>
     </div>
   </div>
